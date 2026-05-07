@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MacBook Pro Flip Calculator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #f3f4f6; }
+        .result-card { transition: transform 0.2s; }
+        .result-card:hover { transform: translateY(-2px); }
+    </style>
+</head>
+<body class="p-6 md:p-12 font-sans text-gray-800">
+
+    <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden flex flex-col md:flex-row">
+        
+        <div class="w-full md:w-1/2 p-6 md:p-8 border-r border-gray-200 bg-gray-50">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">💻 Configure Specs</h2>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Processor Family</label>
+                    <select id="family" class="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                        <option value="M5">M5</option>
+                        <option value="M4">M4</option>
+                        <option value="M3">M3</option>
+                        <option value="M2">M2</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Chip Tier</label>
+                    <select id="tier" class="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">Base (Standard)</option>
+                        <option value="Pro">Pro</option>
+                        <option value="Max">Max</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Screen Size</label>
+                    <select id="screen" class="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                        <option value="14-inch">14-inch</option>
+                        <option value="16-inch">16-inch</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Unified Memory (RAM)</label>
+                    <select id="ram" class="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                        <option value="8GB">8GB</option>
+                        <option value="16GB" selected>16GB</option>
+                        <option value="18GB">18GB</option>
+                        <option value="24GB">24GB</option>
+                        <option value="32GB">32GB</option>
+                        <option value="36GB">36GB</option>
+                        <option value="48GB">48GB</option>
+                        <option value="64GB">64GB</option>
+                        <option value="96GB">96GB</option>
+                        <option value="128GB">128GB</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Storage (SSD)</label>
+                    <select id="storage" class="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                        <option value="512GB">512GB</option>
+                        <option value="1TB" selected>1TB</option>
+                        <option value="2TB">2TB</option>
+                        <option value="4TB">4TB</option>
+                        <option value="8TB">8TB</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Condition</label>
+                    <select id="condition" class="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                        <option value="Excellent">Excellent (100%)</option>
+                        <option value="Good" selected>Good (85%)</option>
+                        <option value="Fair">Fair (70%)</option>
+                        <option value="Poor">Poor (45%)</option>
+                    </select>
+                </div>
+            </div>
+            
+            <button onclick="calculate()" class="mt-6 w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition-colors">
+                Calculate Pricing
+            </button>
+        </div>
+
+        <div class="w-full md:w-1/2 p-6 md:p-8 bg-white flex flex-col justify-center">
+            
+            <div id="statusMessage" class="text-sm font-semibold text-blue-600 mb-4 h-6">Ready to calculate...</div>
+
+            <div class="bg-gray-800 text-white p-5 rounded-xl shadow-inner mb-6">
+                <h3 class="text-sm uppercase tracking-wider text-gray-400 mb-1">🎯 Max Offer Price (Trade-in)</h3>
+                <div class="text-4xl font-extrabold" id="outOffer">$0</div>
+                <div class="text-xs text-gray-400 mt-2">Based on DB floor price adjusted for condition.</div>
+            </div>
+
+            <h3 class="text-lg font-bold text-gray-900 mb-3 border-b pb-2">Target Selling Prices</h3>
+            
+            <div class="grid grid-cols-2 gap-4">
+                <div class="result-card bg-orange-50 border border-orange-200 p-4 rounded-lg">
+                    <div class="text-xs font-bold text-orange-600 uppercase tracking-wide">🚀 Quick-Flip</div>
+                    <div class="text-xl font-bold text-gray-900 mt-1" id="outQuick">$0</div>
+                    <div class="text-xs text-gray-500 mt-1">Offer × 1.27</div>
+                </div>
+
+                <div class="result-card bg-green-50 border border-green-200 p-4 rounded-lg">
+                    <div class="text-xs font-bold text-green-700 uppercase tracking-wide">🛡️ Safe Estimate</div>
+                    <div class="text-xl font-bold text-gray-900 mt-1" id="outSafe">$0</div>
+                    <div class="text-xs text-gray-500 mt-1">Offer × 1.32</div>
+                </div>
+
+                <div class="result-card bg-purple-50 border border-purple-200 p-4 rounded-lg">
+                    <div class="text-xs font-bold text-purple-700 uppercase tracking-wide">📈 Optimistic</div>
+                    <div class="text-xl font-bold text-gray-900 mt-1" id="outOpt">$0</div>
+                    <div class="text-xs text-gray-500 mt-1">Offer × 1.38</div>
+                </div>
+
+                <div class="result-card bg-blue-50 border border-blue-200 p-4 rounded-lg">
+                    <div class="text-xs font-bold text-blue-700 uppercase tracking-wide">🏷️ MSRP Target</div>
+                    <div class="text-xl font-bold text-gray-900 mt-1" id="outMSRP">$0</div>
+                    <div class="text-xs text-gray-500 mt-1" id="msrpDetails">Orig MSRP: $0</div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // -----------------------------
+        // RAW DATABASE INJECTION
+        // -----------------------------
+        const RAW_PRICE_DB = `
+Year: 2026 / Screen Size: 14-inch / Processor: M5 10-Core CPU 10-Core GPU / Storage: 512GB / Memory: 16GB / Price: $900 / MSRP: $1599
+Year: 2026 / Screen Size: 14-inch / Processor: M5 10-Core CPU 10-Core GPU / Storage: 1TB / Memory: 16GB / Price: $1040 / MSRP: $1699
+Year: 2026 / Screen Size: 14-inch / Processor: M5 10-Core CPU 10-Core GPU / Storage: 2TB / Memory: 16GB / Price: $1,140 / MSRP: $2099
+Year: 2026 / Screen Size: 14-inch / Processor: M5 10-Core CPU 10-Core GPU / Storage: 4TB / Memory: 16GB / Price: $1,350 / MSRP: $2699
+Year: 2026 / Screen Size: 14-inch / Processor: M5 10-Core CPU 10-Core GPU / Storage: 512GB / Memory: 24GB / Price: $1,030 / MSRP: $1799
+Year: 2026 / Screen Size: 14-inch / Processor: M5 10-Core CPU 10-Core GPU / Storage: 1TB / Memory: 24GB / Price: $1,200 / MSRP: $1899
+Year: 2026 / Screen Size: 14-inch / Processor: M5 10-Core CPU 10-Core GPU / Storage: 2TB / Memory: 24GB / Price: $1,270 / MSRP: $2299
+Year: 2026 / Screen Size: 14-inch / Processor: M5 10-Core CPU 10-Core GPU / Storage: 4TB / Memory: 24GB / Price: $1,480 / MSRP: $2899
+Year: 2026 / Screen Size: 14-inch / Processor: M5 10-Core CPU 10-Core GPU / Storage: 512GB / Memory: 32GB / Price: $1,170 / MSRP: $1999
+Year: 2026 / Screen Size: 14-inch / Processor: M5 10-Core CPU 10-Core GPU / Storage: 1TB / Memory: 32GB / Price: $1,300 / MSRP: $2099
+Year: 2026 / Screen Size: 14-inch / Processor: M5 10-Core CPU 10-Core GPU / Storage: 2TB / Memory: 32GB / Price: $1,390 / MSRP: $2499
+Year: 2026 / Screen Size: 14-inch / Processor: M5 10-Core CPU 10-Core GPU / Storage: 4TB / Memory: 32GB / Price: $1,620 / MSRP: $3099
+Year: 2026 / Screen Size: 14-inch / Processor: M5 Pro 15-Core CPU 16-Core GPU / Storage: 1TB / Memory: 24GB / Price: $1,460 / MSRP: $2199
+Year: 2026 / Screen Size: 14-inch / Processor: M5 Pro 15-Core CPU 16-Core GPU / Storage: 2TB / Memory: 24GB / Price: $1,710 / MSRP: $2599
+Year: 2026 / Screen Size: 14-inch / Processor: M5 Pro 15-Core CPU 16-Core GPU / Storage: 4TB / Memory: 24GB / Price: $2,030 / MSRP: $3199
+Year: 2026 / Screen Size: 14-inch / Processor: M5 Pro 15-Core CPU 16-Core GPU / Storage: 1TB / Memory: 48 GB / Price: $1,710 / MSRP: $2599
+Year: 2026 / Screen Size: 14-inch / Processor: M5 Pro 15-Core CPU 16-Core GPU / Storage: 2TB / Memory: 48 GB / Price: $1,980 / MSRP: $2999
+Year: 2026 / Screen Size: 14-inch / Processor: M5 Pro 15-Core CPU 16-Core GPU / Storage: 4TB / Memory: 48 GB / Price: $2,290 / MSRP: $3599
+Year: 2026 / Screen Size: 14-inch / Processor: M5 Pro 18-Core CPU 20-Core GPU / Storage: 1TB / Memory: 24GB /  Price: $1,600 / MSRP: $2399
+Year: 2026 / Screen Size: 14-inch / Processor: M5 Pro 18-Core CPU 20-Core GPU / Storage: 2TB / Memory: 24GB / Price: $1,850 / MSRP: $2799
+Year: 2026 / Screen Size: 14-inch / Processor: M5 Pro 18-Core CPU 20-Core GPU / Storage: 4TB / Memory: 24GB / Price: $2,160 / MSRP: $3399
+Year: 2026 / Screen Size: 14-inch / Processor: M5 Pro 18-Core CPU 20-Core GPU / Storage: 1TB / Memory: 48 GB / Price: $1,900 / MSRP: $2799
+Year: 2026 / Screen Size: 14-inch / Processor: M5 Pro 18-Core CPU 20-Core GPU / Storage: 2TB / Memory: 48 GB / Price: $2,180 / MSRP: $3199
+Year: 2026 / Screen Size: 14-inch / Processor: M5 Pro 18-Core CPU 20-Core GPU / Storage: 4TB / Memory: 48 GB / Price: $2,490 / MSRP: $3799
+Year: 2026 / Screen Size: 14-inch / Processor: M5 Pro 18-Core CPU 20-Core GPU / Storage: 1TB / Memory: 64GB / Price: $2,080 / MSRP: $2999
+Year: 2026 / Screen Size: 14-inch / Processor: M5 Pro 18-Core CPU 20-Core GPU / Storage: 2TB / Memory: 64GB / Price: $2,360 / MSRP: $3399
+Year: 2026 / Screen Size: 14-inch / Processor: M5 Pro 18-Core CPU 20-Core GPU / Storage: 4TB / Memory: 64GB / Price: $2,670  / MSRP: $3999
+Year: 2026 / Screen Size: 14-inch / Processor: M5 Max 18-Core CPU 32-Core GPU / Storage: 2TB / Memory: 36GB / Price: $2,470 / MSRP: $3599
+Year: 2026 / Screen Size: 14-inch / Processor: M5 Max 18-Core CPU 32-Core GPU / Storage: 4TB / Memory: 36GB / Price: $2,980 / MSRP: $4199
+Year: 2026 / Screen Size: 14-inch / Processor: M5 Max 18-Core CPU 32-Core GPU / Storage: 8TB / Memory: 36GB / Price: $3,810 / MSRP: $5399
+Year: 2026 / Screen Size: 14-inch / Processor: M5 Max 18-Core 40-Core GPU / Storage: 2TB / Memory: 48 GB / Price: $2,890 / MSRP: $4099
+Year: 2026 / Screen Size: 14-inch / Processor: M5 Max 18-Core 40-Core GPU / Storage: 4TB / Memory: 48 GB / Price: $3,340 / MSRP: $4699
+Year: 2026 / Screen Size: 14-inch / Processor: M5 Max 18-Core 40-Core GPU / Storage: 8TB / Memory: 48 GB / Price: $4,230 / MSRP: $5899
+Year: 2026 / Screen Size: 14-inch / Processor: M5 Max 18-Core 40-Core GPU / Storage: 2TB / Memory: 64GB / Price: $3,020 / MSRP: $4299
+Year: 2026 / Screen Size: 14-inch / Processor: M5 Max 18-Core 40-Core GPU / Storage: 4TB / Memory: 64GB / Price: $3,480 / MSRP: $4899
+Year: 2026 / Screen Size: 14-inch / Processor: M5 Max 18-Core 40-Core GPU / Storage: 8TB / Memory: 64GB / Price: $4,380 / MSRP: $6099
+Year: 2026 / Screen Size: 14-inch / Processor: M5 Max 18-Core 40-Core GPU / Storage: 2TB / Memory: 128GB / Price: $3,480 / MSRP: $5099
+Year: 2026 / Screen Size: 14-inch / Processor: M5 Max 18-Core 40-Core GPU / Storage: 4TB / Memory: 128GB / Price: $3,900 / MSRP: $5699
+Year: 2026 / Screen Size: 14-inch / Processor: M5 Max 18-Core 40-Core GPU / Storage: 8TB / Memory: 128GB / Price: $4,950 / MSRP: $6899
+Year: 2026 / Screen Size: 16-inch / Processor: M5 Pro 18-Core CPU 20-Core GPU / Storage: 1TB / Memory: 24GB / Price: $1,910 / MSRP: $2699
+Year: 2026 / Screen Size: 16-inch / Processor: M5 Pro 18-Core CPU 20-Core GPU / Storage: 2TB / Memory: 24GB / Price: $1,950 / MSRP: $3099
+Year: 2026 / Screen Size: 16-inch / Processor: M5 Pro 18-Core CPU 20-Core GPU / Storage: 4TB / Memory: 24GB / Price: $2,560 / MSRP: $3699
+Year: 2026 / Screen Size: 16-inch / Processor: M5 Pro 18-Core CPU 20-Core GPU / Storage: 1TB / Memory: 48 GB / Price: $2,200 / MSRP: $3099
+Year: 2026 / Screen Size: 16-inch / Processor: M5 Pro 18-Core CPU 20-Core GPU / Storage: 2TB / Memory: 48 GB / Price: $2,360 / MSRP: $3499
+Year: 2026 / Screen Size: 16-inch / Processor: M5 Pro 18-Core CPU 20-Core GPU / Storage: 4TB / Memory: 48 GB / Price: $2,840 / MSRP: $4099
+Year: 2026 / Screen Size: 16-inch / Processor: M5 Pro 18-Core CPU 20-Core GPU / Storage: 1TB / Memory: 64GB / Price: $2,430 / MSRP: $3299
+Year: 2026 / Screen Size: 16-inch / Processor: M5 Pro 18-Core CPU 20-Core GPU / Storage: 2TB / Memory: 64GB / Price: $2,540 / MSRP: $3699
+Year: 2026 / Screen Size: 16-inch / Processor: M5 Pro 18-Core CPU 20-Core GPU / Storage: 4TB / Memory: 64GB / Price: $3,040 / MSRP: $4299
+Year: 2026 / Screen Size: 16-inch / Processor: M5 Max 18-Core CPU 32-Core GPU / Storage: 2TB / Memory: 36GB / Price: $2,700 / MSRP: $3899
+Year: 2026 / Screen Size: 16-inch / Processor: M5 Max 18-Core CPU 32-Core GPU / Storage: 4TB / Memory: 36GB / Price: $3,190 / MSRP: $4499
+Year: 2026 / Screen Size: 16-inch / Processor: M5 Max 18-Core CPU 32-Core GPU / Storage: 8TB / Memory: 36GB / Price: $4,180 / MSRP: $5699
+Year: 2026 / Screen Size: 16-inch / Processor: M5 Max 18-Core 40-Core GPU / Storage: 2TB / Memory: 48 GB / Price: $2,990 / MSRP: $4399
+Year: 2026 / Screen Size: 16-inch / Processor: M5 Max 18-Core 40-Core GPU / Storage: 4TB / Memory: 48 GB / Price: $3,420 / MSRP: $4999
+Year: 2026 / Screen Size: 16-inch / Processor: M5 Max 18-Core 40-Core GPU / Storage: 8TB / Memory: 48 GB / Price: $4,410 / MSRP: $6199
+Year: 2026 / Screen Size: 16-inch / Processor: M5 Max 18-Core 40-Core GPU / Storage: 2TB / Memory: 64GB / Price: $3,110 / MSRP: $4599
+Year: 2026 / Screen Size: 16-inch / Processor: M5 Max 18-Core 40-Core GPU / Storage: 4TB / Memory: 64GB / Price: $3,580 / MSRP: $5199
+Year: 2026 / Screen Size: 16-inch / Processor: M5 Max 18-Core 40-Core GPU / Storage: 8TB / Memory: 64GB / Price: $4,590 / MSRP: $6399
+Year: 2026 / Screen Size: 16-inch / Processor: M5 Max 18-Core 40-Core GPU / Storage: 2TB / Memory: 128GB / Price: $3,690 / MSRP: $5399
+Year: 2026 / Screen Size: 16-inch / Processor: M5 Max 18-Core 40-Core GPU / Storage: 4TB / Memory: 128GB / Price: $4,100 / MSRP: $5999
+Year: 2026 / Screen Size: 16-inch / Processor: M5 Max 18-Core 40-Core GPU / Storage: 8TB / Memory: 128GB / Price: $5,190 / MSRP: $7199
+Year: Late 2024 / Screen Size: 14-inch / Processor: M4 with 10-core CPU and 10-core GPU / Storage: 512GB / Memory: 16GB / Price: $810 / MSRP: $1,599
+Year: Late 2024 / Screen Size: 14-inch / Processor: M4 with 10-core CPU and 10-core GPU / Storage: 1TB / Memory: 16GB / Price: $940 / MSRP: $1,799
+Year: Late 2024 / Screen Size: 14-inch / Processor: M4 with 10-core CPU and 10-core GPU / Storage: 2TB / Memory: 16GB / Price: $1,090 / MSRP: $2,199
+Year: Late 2024 / Screen Size: 14-inch / Processor: M4 with 10-core CPU and 10-core GPU / Storage: 512GB / Memory: 24GB / Price: $900 / MSRP: $1,799
+Year: Late 2024 / Screen Size: 14-inch / Processor: M4 with 10-core CPU and 10-core GPU / Storage: 1TB / Memory: 24GB / Price: $1,040 / MSRP: $1,999
+Year: Late 2024 / Screen Size: 14-inch / Processor: M4 with 10-core CPU and 10-core GPU / Storage: 2TB / Memory: 24GB / Price: $1,200 / MSRP: $2,399
+Year: Late 2024 / Screen Size: 14-inch / Processor: M4 with 10-core CPU and 10-core GPU / Storage: 512GB / Memory: 32GB / Price: $1,040 / MSRP: $1,999
+Year: Late 2024 / Screen Size: 14-inch / Processor: M4 with 10-core CPU and 10-core GPU / Storage: 1TB / Memory: 32GB / Price: $1,180 / MSRP: $2,199
+Year: Late 2024 / Screen Size: 14-inch / Processor: M4 with 10-core CPU and 10-core GPU / Storage: 2TB / Memory: 32GB / Price: $1,310 / MSRP: $2,599
+Year: Late 2024 / Screen Size: 14-inch / Processor: M4 Pro with 12‑core CPU and 16‑core GPU / Storage: 512GB / Memory: 24GB / Price: $1,130 / MSRP: $1,999
+Year: Late 2024 / Screen Size: 14-inch / Processor: M4 Pro with 12‑core CPU and 16‑core GPU / Storage: 1TB / Memory: 24GB / Price: $1,240 / MSRP: $2,199
+Year: Late 2024 / Screen Size: 14-inch / Processor: M4 Pro with 12‑core CPU and 16‑core GPU / Storage: 2TB / Memory: 24GB / Price: $1,470 / MSRP: $2,599
+Year: Late 2024 / Screen Size: 14-inch / Processor: M4 Pro with 12‑core CPU and 16‑core GPU / Storage: 4TB / Memory: 24GB / Price: $1,620 / MSRP: $3,199
+Year: Late 2024 / Screen Size: 14-inch / Processor: M4 Pro with 12‑core CPU and 16‑core GPU / Storage: 512GB / Memory: 48GB / Price: $1420 / MSRP: $2,399
+Year: Late 2024 / Screen Size: 14-inch / Processor: M4 Pro with 12‑core CPU and 16‑core GPU / Storage: 1TB / Memory: 48GB / Price: $1,550 / MSRP: $2,599
+Year: Late 2024 / Screen Size: 14-inch / Processor: M4 Pro with 12‑core CPU and 16‑core GPU / Storage: 2TB / Memory: 48GB / Price: $1,690 / MSRP: $2,999
+Year: Late 2024 / Screen Size: 14-inch / Processor: M4 Pro with 12‑core CPU and 16‑core GPU / Storage: 4TB / Memory: 48GB / Price: $1,870 / MSRP: $3,599
+Year: Late 2024 / Screen Size: 14-inch / Processor: M4 Pro with 14‑core CPU and 20‑core GPU / Storage: 512GB / Memory: 24GB / Price: $1,160 / MSRP: $2,199
+Year: Late 2024 / Screen Size: 14-inch / Processor: M4 Pro with 14‑core CPU and 20‑core GPU / Storage: 1TB / Memory: 24GB / Price: $1,330 / MSRP: $2,399
+Year: Late 2024 / Screen Size: 14-inch / Processor: M4 Pro with 14‑core CPU and 20‑core GPU / Storage: 2TB / Memory: 24GB / Price: $1,490 / MSRP: $2,799
+Year: Late 2024 / Screen Size: 14-inch / Processor: M4 Pro with 14‑core CPU and 20‑core GPU / Storage: 4TB / Memory: 24GB / Price: $1,690 / MSRP: $3,399
+Year: Late 2024 / Screen Size: 14-inch / Processor: M4 Pro with 14‑core CPU and 20‑core GPU / Storage: 512GB / Memory: 48GB / Price: $1,490 / MSRP: $2,599
+Year: Late 2024 / Screen Size: 14-inch / Processor: M4 Pro with 14‑core CPU and 20‑core GPU / Storage: 1TB / Memory: 48GB / Price: $1,650 / MSRP: $2,799
+Year: Late 2024 / Screen Size: 14-inch / Processor: M4 Pro with 14‑core CPU and 20‑core GPU / Storage: 2TB / Memory: 48GB / Price: $1,760 / MSRP: $3,199
+Year: Late 2024 / Screen Size: 14-inch / Processor: M4 Pro with 14‑core CPU and 20‑core GPU / Storage: 4TB / Memory: 48GB / Price: $1,980 / MSRP: $3,799
+Year: Late 2024 / Screen Size: 14-inch / Processor: M4 Max with 14‑core CPU and 32‑core GPU / Storage: 1TB / Memory: 36GB / Price: $1,850 / MSRP: $3,199
+Year: Late 2024 / Screen Size: 14-inch / Processor: M4 Max with 14‑core CPU and 32‑core GPU / Storage: 2TB / Memory: 36GB / Price: $2,120 / MSRP: $3,599
+Year: Late 2024 / Screen Size: 14-inch / Processor: M4 Max with 14‑core CPU and 32‑core GPU / Storage: 4TB / Memory: 36GB / Price: $2,390 / MSRP: $4,199
+Year: Late 2024 / Screen Size: 14-inch / Processor: M4 Max with 14‑core CPU and 32‑core GPU / Storage: 8TB / Memory: 36GB / Price: $2,670 / MSRP: $5,399
+Year: Late 2024 / Screen Size: 14-inch / Processor: M4 Max with 16‑core CPU and 40‑core GPU / Storage: 1TB / Memory: 48GB / Price: $2,050 / MSRP: $3,699
+Year: Late 2024 / Screen Size: 14-inch / Processor: M4 Max with 16‑core CPU and 40‑core GPU / Storage: 2TB / Memory: 48GB / Price: $2,240 / MSRP: $4,099
+Year: Late 2024 / Screen Size: 14-inch / Processor: M4 Max with 16‑core CPU and 40‑core GPU / Storage: 4TB / Memory: 48GB / Price: $2,560 / MSRP: $4,699
+Year: Late 2024 / Screen Size: 14-inch / Processor: M4 Max with 16‑core CPU and 40‑core GPU / Storage: 8TB / Memory: 48GB / Price: $2,930 / MSRP: $5,899
+Year: Late 2024 / Screen Size: 14-inch / Processor: M4 Max with 16‑core CPU and 40‑core GPU / Storage: 1TB / Memory: 64GB / Price: $2,380 / MSRP: $3,899
+Year: Late 2024 / Screen Size: 14-inch / Processor: M4 Max with 16‑core CPU and 40‑core GPU / Storage: 2TB / Memory: 64GB / Price: $2,570 / MSRP: $4,299
+Year: Late 2024 / Screen Size: 14-inch / Processor: M4 Max with 16‑core CPU and 40‑core GPU / Storage: 4TB / Memory: 64GB / Price: $2,900 / MSRP: $4,899
+Year: Late 2024 / Screen Size: 14-inch / Processor: M4 Max with 16‑core CPU and 40‑core GPU / Storage: 8TB / Memory: 64GB / Price: $3,210 / MSRP: $6,099
+Year: Late 2024 / Screen Size: 14-inch / Processor: M4 Max with 16‑core CPU and 40‑core GPU / Storage: 1TB / Memory: 128GB / Price: $2,900 / MSRP: $4,699
+Year: Late 2024 / Screen Size: 14-inch / Processor: M4 Max with 16‑core CPU and 40‑core GPU / Storage: 2TB / Memory: 128GB / Price: $3,120 / MSRP: $5,099
+Year: Late 2024 / Screen Size: 14-inch / Processor: M4 Max with 16‑core CPU and 40‑core GPU / Storage: 4TB / Memory: 128GB / Price: $3,380 / MSRP: $5,699
+Year: Late 2024 / Screen Size: 14-inch / Processor: M4 Max with 16‑core CPU and 40‑core GPU / Storage: 8TB / Memory: 128GB / Price: $3,730 / MSRP: $6,899
+Year: Late 2024 / Screen Size: 16-inch / Processor: M4 Pro with 14‑core CPU and 20‑core GPU / Storage: 512GB / Memory: 24GB / Price: $1,310 / MSRP: $2,499
+Year: Late 2024 / Screen Size: 16-inch / Processor: M4 Pro with 14‑core CPU and 20‑core GPU / Storage: 1TB / Memory: 24GB / Price: $1,490 / MSRP: $2,699
+Year: Late 2024 / Screen Size: 16-inch / Processor: M4 Pro with 14‑core CPU and 20‑core GPU / Storage: 2TB / Memory: 24GB / Price: $1,740 / MSRP: $3,099
+Year: Late 2024 / Screen Size: 16-inch / Processor: M4 Pro with 14‑core CPU and 20‑core GPU / Storage: 4TB / Memory: 24GB / Price: $1,930 / MSRP: $3,699
+Year: Late 2024 / Screen Size: 16-inch / Processor: M4 Pro with 14‑core CPU and 20‑core GPU / Storage: 512GB / Memory: 48GB / Price: $1,590 / MSRP: $2,899
+Year: Late 2024 / Screen Size: 16-inch / Processor: M4 Pro with 14‑core CPU and 20‑core GPU / Storage: 1TB / Memory: 48GB / Price: $1,860 / MSRP: $3,099
+Year: Late 2024 / Screen Size: 16-inch / Processor: M4 Pro with 14‑core CPU and 20‑core GPU / Storage: 2TB / Memory: 48GB / Price: $2,020 / MSRP: $3,499
+Year: Late 2024 / Screen Size: 16-inch / Processor: M4 Pro with 14‑core CPU and 20‑core GPU / Storage: 4TB / Memory: 48GB / Price: $2,330 / MSRP: $4,099
+Year: Late 2024 / Screen Size: 16-inch / Processor: M4 Max with 14‑core CPU and 32‑core GPU / Storage: 1TB / Memory: 36GB / Price: $2,080 / MSRP: $3,499
+Year: Late 2024 / Screen Size: 16-inch / Processor: M4 Max with 14‑core CPU and 32‑core GPU / Storage: 2TB / Memory: 36GB / Price: $2,280 / MSRP: $3,899
+Year: Late 2024 / Screen Size: 16-inch / Processor: M4 Max with 14‑core CPU and 32‑core GPU / Storage: 4TB / Memory: 36GB / Price: $2,470 / MSRP: $4,499
+Year: Late 2024 / Screen Size: 16-inch / Processor: M4 Max with 14‑core CPU and 32‑core GPU / Storage: 8TB / Memory: 36GB / Price: $2,910 / MSRP: $5,699
+Year: Late 2024 / Screen Size: 16-inch / Processor: M4 Max with 16‑core CPU and 40‑core GPU / Storage: 1TB / Memory: 48GB / Price: $2,290 / MSRP: $3,999
+Year: Late 2024 / Screen Size: 16-inch / Processor: M4 Max with 16‑core CPU and 40‑core GPU / Storage: 2TB / Memory: 48GB / Price: $2,620 / MSRP: $4,399
+Year: Late 2024 / Screen Size: 16-inch / Processor: M4 Max with 16‑core CPU and 40‑core GPU / Storage: 4TB / Memory: 48GB / Price: $2,900 / MSRP: $4,999
+Year: Late 2024 / Screen Size: 16-inch / Processor: M4 Max with 16‑core CPU and 40‑core GPU / Storage: 8TB / Memory: 48GB / Price: $3,300 / MSRP: $6,199
+Year: Late 2024 / Screen Size: 16-inch / Processor: M4 Max with 16‑core CPU and 40‑core GPU / Storage: 1TB / Memory: 64GB / Price: $2,590 / MSRP: $4,199
+Year: Late 2024 / Screen Size: 16-inch / Processor: M4 Max with 16‑core CPU and 40‑core GPU / Storage: 2TB / Memory: 64GB / Price: $2,850 / MSRP: $4,599
+Year: Late 2024 / Screen Size: 16-inch / Processor: M4 Max with 16‑core CPU and 40‑core GPU / Storage: 4TB / Memory: 64GB / Price: $3,120 / MSRP: $5,199
+Year: Late 2024 / Screen Size: 16-inch / Processor: M4 Max with 16‑core CPU and 40‑core GPU / Storage: 8TB / Memory: 64GB / Price: $3,540 / MSRP: $6,399
+Year: Late 2024 / Screen Size: 16-inch / Processor: M4 Max with 16‑core CPU and 40‑core GPU / Storage: 1TB / Memory: 128GB / Price: $3,290 / MSRP: $4,999
+Year: Late 2024 / Screen Size: 16-inch / Processor: M4 Max with 16‑core CPU and 40‑core GPU / Storage: 2TB / Memory: 128GB / Price: $3,590 / MSRP: $5,399
+Year: Late 2024 / Screen Size: 16-inch / Processor: M4 Max with 16‑core CPU and 40‑core GPU / Storage: 4TB / Memory: 128GB / Price: $3,830 / MSRP: $5,999
+Year: Late 2024 / Screen Size: 16-inch / Processor: M4 Max with 16‑core CPU and 40‑core GPU / Storage: 8TB / Memory: 128GB / Price: $4,330 / MSRP: $7,199
+Year: Late 2023 / Screen Size: 14-inch / Processor: M3 with 8-core CPU and 10-core GPU / Storage: 512GB / Memory: 8GB / Price: $590 / MSRP: $1,599
+Year: Late 2023 / Screen Size: 14-inch / Processor: M3 with 8-core CPU and 10-core GPU / Storage: 1TB / Memory: 8GB / Price: $680 / MSRP: $1,799
+Year: Late 2023 / Screen Size: 14-inch / Processor: M3 with 8-core CPU and 10-core GPU / Storage: 2TB / Memory: 8GB / Price: $780 / MSRP: $2,199
+Year: Late 2023 / Screen Size: 14-inch / Processor: M3 with 8-core CPU and 10-core GPU / Storage: 512GB / Memory: 16GB / Price: $680 / MSRP: $1,799
+Year: Late 2023 / Screen Size: 14-inch / Processor: M3 with 8-core CPU and 10-core GPU / Storage: 1TB / Memory: 16GB / Price: $780 / MSRP: $1,999
+Year: Late 2023 / Screen Size: 14-inch / Processor: M3 with 8-core CPU and 10-core GPU / Storage: 2TB / Memory: 16GB / Price: $890 / MSRP: $2,399
+Year: Late 2023 / Screen Size: 14-inch / Processor: M3 with 8-core CPU and 10-core GPU / Storage: 512GB / Memory: 24GB / Price: $800 / MSRP: $1,999
+Year: Late 2023 / Screen Size: 14-inch / Processor: M3 with 8-core CPU and 10-core GPU / Storage: 1TB / Memory: 24GB / Price: $910 / MSRP: $2,199
+Year: Late 2023 / Screen Size: 14-inch / Processor: M3 with 8-core CPU and 10-core GPU / Storage: 2TB / Memory: 24GB / Price: $1,010 / MSRP: $2,599
+Year: Late 2023 / Screen Size: 14-inch / Processor: M3 Pro with 11-core CPU and 14-core GPU / Storage: 512GB / Memory: 18GB / Price: $830 / MSRP: $1,999
+Year: Late 2023 / Screen Size: 14-inch / Processor: M3 Pro with 11-core CPU and 14-core GPU / Storage: 1TB / Memory: 18GB / Price: $970 / MSRP: $2,199
+Year: Late 2023 / Screen Size: 14-inch / Processor: M3 Pro with 11-core CPU and 14-core GPU / Storage: 2TB / Memory: 18GB / Price: $1,070 / MSRP: $2,599
+Year: Late 2023 / Screen Size: 14-inch / Processor: M3 Pro with 11-core CPU and 14-core GPU / Storage: 4TB / Memory: 18GB / Price: $1,260 / MSRP: $3,199
+Year: Late 2023 / Screen Size: 14-inch / Processor: M3 Pro with 11-core CPU and 14-core GPU / Storage: 512GB / Memory: 36GB / Price: $960 / MSRP: $2,399
+Year: Late 2023 / Screen Size: 14-inch / Processor: M3 Pro with 11-core CPU and 14-core GPU / Storage: 1TB / Memory: 36GB / Price: $1,070 / MSRP: $2,599
+Year: Late 2023 / Screen Size: 14-inch / Processor: M3 Pro with 11-core CPU and 14-core GPU / Storage: 2TB / Memory: 36GB / Price: $1,180 / MSRP: $2,999
+Year: Late 2023 / Screen Size: 14-inch / Processor: M3 Pro with 11-core CPU and 14-core GPU / Storage: 4TB / Memory: 36GB / Price: $1,390 / MSRP: $3,599
+Year: Late 2023 / Screen Size: 14-inch / Processor: M3 Pro with 12-core CPU and 18-core GPU / Storage: 512GB / Memory: 18GB / Price: $890 / MSRP: $2,199
+Year: Late 2023 / Screen Size: 14-inch / Processor: M3 Pro with 12-core CPU and 18-core GPU / Storage: 1TB / Memory: 18GB / Price: $1,020 / MSRP: $2,399
+Year: Late 2023 / Screen Size: 14-inch / Processor: M3 Pro with 12-core CPU and 18-core GPU / Storage: 2TB / Memory: 18GB / Price: $1,160 / MSRP: $2,799
+Year: Late 2023 / Screen Size: 14-inch / Processor: M3 Pro with 12-core CPU and 18-core GPU / Storage: 4TB / Memory: 18GB / Price: $1,350 / MSRP: $3,399
+Year: Late 2023 / Screen Size: 14-inch / Processor: M3 Pro with 12-core CPU and 18-core GPU / Storage: 512GB / Memory: 36GB / Price: $1,090 / MSRP: $2,599
+Year: Late 2023 / Screen Size: 14-inch / Processor: M3 Pro with 12-core CPU and 18-core GPU / Storage: 1TB / Memory: 36GB / Price: $1,180 / MSRP: $2,799
+Year: Late 2023 / Screen Size: 14-inch / Processor: M3 Pro with 12-core CPU and 18-core GPU / Storage: 2TB / Memory: 36GB / Price: $1,320 / MSRP: $3,199
+Year: Late 2023 / Screen Size: 14-inch / Processor: M3 Pro with 12-core CPU and 18-core GPU / Storage: 4TB / Memory: 36GB / Price: $1,530 / MSRP: $3,799
+Year: Late 2023 / Screen Size: 14-inch / Processor: M3 Max with 14-core CPU and 30-core GPU / Storage: 512GB / Memory: 36GB / Price: $1,400 / MSRP: $2,999
+Year: Late 2023 / Screen Size: 14-inch / Processor: M3 Max with 14-core CPU and 30-core GPU / Storage: 1TB / Memory: 36GB / Price: $1,600 / MSRP: $3,199
+Year: Late 2023 / Screen Size: 14-inch / Processor: M3 Max with 14-core CPU and 30-core GPU / Storage: 2TB / Memory: 36GB / Price: $1,790 / MSRP: $3,599
+Year: Late 2023 / Screen Size: 14-inch / Processor: M3 Max with 14-core CPU and 30-core GPU / Storage: 4TB / Memory: 36GB / Price: $2,000 / MSRP: $4,199
+Year: Late 2023 / Screen Size: 14-inch / Processor: M3 Max with 14-core CPU and 30-core GPU / Storage: 8TB / Memory: 36GB / Price: $2,190 / MSRP: $5,399
+Year: Late 2023 / Screen Size: 14-inch / Processor: M3 Max with 14-core CPU and 30-core GPU / Storage: 512GB / Memory: 96GB / Price: $1,900 / MSRP: $3,799
+Year: Late 2023 / Screen Size: 14-inch / Processor: M3 Max with 14-core CPU and 30-core GPU / Storage: 1TB / Memory: 96GB / Price: $2,110 / MSRP: $3,999
+Year: Late 2023 / Screen Size: 14-inch / Processor: M3 Max with 14-core CPU and 30-core GPU / Storage: 2TB / Memory: 96GB / Price: $2,320 / MSRP: $4,399
+Year: Late 2023 / Screen Size: 14-inch / Processor: M3 Max with 14-core CPU and 30-core GPU / Storage: 4TB / Memory: 96GB / Price: $2,520 / MSRP: $4,999
+Year: Late 2023 / Screen Size: 14-inch / Processor: M3 Max with 14-core CPU and 30-core GPU / Storage: 8TB / Memory: 96GB / Price: $2,710 / MSRP: $6,199
+Year: Late 2023 / Screen Size: 14-inch / Processor: M3 Max with 16-core CPU and 40-core GPU / Storage: 512GB / Memory: 48GB / Price: $1,670 / MSRP: $3,499
+Year: Late 2023 / Screen Size: 14-inch / Processor: M3 Max with 16-core CPU and 40-core GPU / Storage: 1TB / Memory: 48GB / Price: $1,880 / MSRP: $3,699
+Year: Late 2023 / Screen Size: 14-inch / Processor: M3 Max with 16-core CPU and 40-core GPU / Storage: 2TB / Memory: 48GB / Price: $2,010 / MSRP: $4,099
+Year: Late 2023 / Screen Size: 14-inch / Processor: M3 Max with 16-core CPU and 40-core GPU / Storage: 4TB / Memory: 48GB / Price: $2,240 / MSRP: $4,699
+Year: Late 2023 / Screen Size: 14-inch / Processor: M3 Max with 16-core CPU and 40-core GPU / Storage: 8TB / Memory: 48GB / Price: $2,470 / MSRP: $5,899
+Year: Late 2023 / Screen Size: 14-inch / Processor: M3 Max with 16-core CPU and 40-core GPU / Storage: 512GB / Memory: 64GB / Price: $1,930 / MSRP: $3,699
+Year: Late 2023 / Screen Size: 14-inch / Processor: M3 Max with 16-core CPU and 40-core GPU / Storage: 1TB / Memory: 64GB / Price: $2,130 / MSRP: $3,899
+Year: Late 2023 / Screen Size: 14-inch / Processor: M3 Max with 16-core CPU and 40-core GPU / Storage: 2TB / Memory: 64GB / Price: $2,290 / MSRP: $4,299
+Year: Late 2023 / Screen Size: 14-inch / Processor: M3 Max with 16-core CPU and 40-core GPU / Storage: 4TB / Memory: 64GB / Price: $2,500 / MSRP: $4,899
+Year: Late 2023 / Screen Size: 14-inch / Processor: M3 Max with 16-core CPU and 40-core GPU / Storage: 8TB / Memory: 64GB / Price: $2,750 / MSRP: $6,099
+Year: Late 2023 / Screen Size: 14-inch / Processor: M3 Max with 16-core CPU and 40-core GPU / Storage: 512GB / Memory: 128GB / Price: $2,400 / MSRP: $4,499
+Year: Late 2023 / Screen Size: 14-inch / Processor: M3 Max with 16-core CPU and 40-core GPU / Storage: 1TB / Memory: 128GB / Price: $2,540 / MSRP: $4,699
+Year: Late 2023 / Screen Size: 14-inch / Processor: M3 Max with 16-core CPU and 40-core GPU / Storage: 2TB / Memory: 128GB / Price: $2,650 / MSRP: $5,099
+Year: Late 2023 / Screen Size: 14-inch / Processor: M3 Max with 16-core CPU and 40-core GPU / Storage: 4TB / Memory: 128GB / Price: $2,860 / MSRP: $5,699
+Year: Late 2023 / Screen Size: 14-inch / Processor: M3 Max with 16-core CPU and 40-core GPU / Storage: 8TB / Memory: 128GB / Price: $3,090 / MSRP: $6,899
+Year: Late 2023 / Screen Size: 16-inch / Processor: M3 Pro with 12-core CPU and 18-core GPU / Storage: 512GB / Memory: 18GB / Price: $1,100 / MSRP: $2,499
+Year: Late 2023 / Screen Size: 16-inch / Processor: M3 Pro with 12-core CPU and 18-core GPU / Storage: 1TB / Memory: 18GB / Price: $1,210 / MSRP: $2,699
+Year: Late 2023 / Screen Size: 16-inch / Processor: M3 Pro with 12-core CPU and 18-core GPU / Storage: 2TB / Memory: 18GB / Price: $1,450 / MSRP: $3,099
+Year: Late 2023 / Screen Size: 16-inch / Processor: M3 Pro with 12-core CPU and 18-core GPU / Storage: 4TB / Memory: 18GB / Price: $1,600 / MSRP: $3,699
+Year: Late 2023 / Screen Size: 16-inch / Processor: M3 Pro with 12-core CPU and 18-core GPU / Storage: 512GB / Memory: 36GB / Price: $1,280 / MSRP: $2,899
+Year: Late 2023 / Screen Size: 16-inch / Processor: M3 Pro with 12-core CPU and 18-core GPU / Storage: 1TB / Memory: 36GB / Price: $1,380 / MSRP: $3,099
+Year: Late 2023 / Screen Size: 16-inch / Processor: M3 Pro with 12-core CPU and 18-core GPU / Storage: 2TB / Memory: 36GB / Price: $1,590 / MSRP: $3,499
+Year: Late 2023 / Screen Size: 16-inch / Processor: M3 Pro with 12-core CPU and 18-core GPU / Storage: 4TB / Memory: 36GB / Price: $1,960 / MSRP: $4,099
+Year: Late 2023 / Screen Size: 16-inch / Processor: M3 Max with 14-core CPU and 30-core GPU / Storage: 512GB / Memory: 36GB / Price: $1,450 / MSRP: $3,299
+Year: Late 2023 / Screen Size: 16-inch / Processor: M3 Max with 14-core CPU and 30-core GPU / Storage: 1TB / Memory: 36GB / Price: $1,650 / MSRP: $3,499
+Year: Late 2023 / Screen Size: 16-inch / Processor: M3 Max with 14-core CPU and 30-core GPU / Storage: 2TB / Memory: 36GB / Price: $1,810 / MSRP: $3,899
+Year: Late 2023 / Screen Size: 16-inch / Processor: M3 Max with 14-core CPU and 30-core GPU / Storage: 4TB / Memory: 36GB / Price: $2,060 / MSRP: $4,499
+Year: Late 2023 / Screen Size: 16-inch / Processor: M3 Max with 14-core CPU and 30-core GPU / Storage: 8TB / Memory: 36GB / Price: $2,290 / MSRP: $5,699
+Year: Late 2023 / Screen Size: 16-inch / Processor: M3 Max with 14-core CPU and 30-core GPU / Storage: 512GB / Memory: 96GB / Price: $1,970 / MSRP: $4,099
+Year: Late 2023 / Screen Size: 16-inch / Processor: M3 Max with 14-core CPU and 30-core GPU / Storage: 1TB / Memory: 96GB / Price: $2,230 / MSRP: $4,299
+Year: Late 2023 / Screen Size: 16-inch / Processor: M3 Max with 14-core CPU and 30-core GPU / Storage: 2TB / Memory: 96GB / Price: $2,370 / MSRP: $4,699
+Year: Late 2023 / Screen Size: 16-inch / Processor: M3 Max with 14-core CPU and 30-core GPU / Storage: 4TB / Memory: 96GB / Price: $2,560 / MSRP: $5,299
+Year: Late 2023 / Screen Size: 16-inch / Processor: M3 Max with 14-core CPU and 30-core GPU / Storage: 8TB / Memory: 96GB / Price: $2,800 / MSRP: $6,499
+Year: Late 2023 / Screen Size: 16-inch / Processor: M3 Max with 16-core CPU and 40-core GPU / Storage: 512GB / Memory: 48GB / Price: $1,760 / MSRP: $3,799
+Year: Late 2023 / Screen Size: 16-inch / Processor: M3 Max with 16-core CPU and 40-core GPU / Storage: 1TB / Memory: 48GB / Price: $2,030 / MSRP: $3,999
+Year: Late 2023 / Screen Size: 16-inch / Processor: M3 Max with 16-core CPU and 40-core GPU / Storage: 2TB / Memory: 48GB / Price: $2,180 / MSRP: $4,399
+Year: Late 2023 / Screen Size: 16-inch / Processor: M3 Max with 16-core CPU and 40-core GPU / Storage: 4TB / Memory: 48GB / Price: $2,370 / MSRP: $4,999
+Year: Late 2023 / Screen Size: 16-inch / Processor: M3 Max with 16-core CPU and 40-core GPU / Storage: 8TB / Memory: 48GB / Price: $2,610 / MSRP: $6,199
+Year: Late 2023 / Screen Size: 16-inch / Processor: M3 Max with 16-core CPU and 40-core GPU / Storage: 512GB / Memory: 64GB / Price: $2,000 / MSRP: $3,999
+Year: Late 2023 / Screen Size: 16-inch / Processor: M3 Max with 16-core CPU and 40-core GPU / Storage: 1TB / Memory: 64GB / Price: $2,270 / MSRP: $4,199
+Year: Late 2023 / Screen Size: 16-inch / Processor: M3 Max with 16-core CPU and 40-core GPU / Storage: 2TB / Memory: 64GB / Price: $2,420 / MSRP: $4,599
+Year: Late 2023 / Screen Size: 16-inch / Processor: M3 Max with 16-core CPU and 40-core GPU / Storage: 4TB / Memory: 64GB / Price: $2,640 / MSRP: $5,199
+Year: Late 2023 / Screen Size: 16-inch / Processor: M3 Max with 16-core CPU and 40-core GPU / Storage: 8TB / Memory: 64GB / Price: $2,860 / MSRP: $6,399
+Year: Late 2023 / Screen Size: 16-inch / Processor: M3 Max with 16-core CPU and 40-core GPU / Storage: 512GB / Memory: 128GB / Price: $2,610 / MSRP: $4,799
+Year: Late 2023 / Screen Size: 16-inch / Processor: M3 Max with 16-core CPU and 40-core GPU / Storage: 1TB / Memory: 128GB / Price: $2,840 / MSRP: $4,999
+Year: Late 2023 / Screen Size: 16-inch / Processor: M3 Max with 16-core CPU and 40-core GPU / Storage: 2TB / Memory: 128GB / Price: $2,980 / MSRP: $5,399
+Year: Late 2023 / Screen Size: 16-inch / Processor: M3 Max with 16-core CPU and 40-core GPU / Storage: 4TB / Memory: 128GB / Price: $3,200 / MSRP: $5,999
+Year: Late 2023 / Screen Size: 16-inch / Processor: M3 Max with 16-core CPU and 40-core GPU / Storage: 8TB / Memory: 128GB / Price: $3,420 / MSRP: $7,199
+Year: 2023 / Screen Size: 14-inch / Processor: M2 Pro with 10-core CPU and 16-core GPU / Storage: 512GB / Memory: 16GB  / Price: $670 / MSRP: $1,999
+Year: 2023 / Screen Size: 14-inch / Processor: M2 Pro with 10-core CPU and 16-core GPU / Storage: 1TB / Memory: 16GB  / Price: $740 / MSRP: $2,199
+Year: 2023 / Screen Size: 14-inch / Processor: M2 Pro with 10-core CPU and 16-core GPU / Storage: 2TB / Memory: 16GB  / Price: $820 / MSRP: $2,599
+Year: 2023 / Screen Size: 14-inch / Processor: M2 Pro with 10-core CPU and 16-core GPU / Storage: 4TB / Memory: 16GB  / Price: $970 / MSRP: $3,199
+Year: 2023 / Screen Size: 14-inch / Processor: M2 Pro with 10-core CPU and 16-core GPU / Storage: 8TB / Memory: 16GB  / Price: $1,120 / MSRP: $4,399
+Year: 2023 / Screen Size: 14-inch / Processor: M2 Pro with 10-core CPU and 16-core GPU / Storage: 512GB / Memory: 32GB  / Price: $810 / MSRP: $2,399
+Year: 2023 / Screen Size: 14-inch / Processor: M2 Pro with 10-core CPU and 16-core GPU / Storage: 1TB / Memory: 32GB  / Price: $880 / MSRP: $2,599
+Year: 2023 / Screen Size: 14-inch / Processor: M2 Pro with 10-core CPU and 16-core GPU / Storage: 2TB / Memory: 32GB  / Price: $970 / MSRP: $2,999
+Year: 2023 / Screen Size: 14-inch / Processor: M2 Pro with 10-core CPU and 16-core GPU / Storage: 4TB / Memory: 32GB  / Price: $1,110 / MSRP: $3,599
+Year: 2023 / Screen Size: 14-inch / Processor: M2 Pro with 10-core CPU and 16-core GPU / Storage: 8TB / Memory: 32GB  / Price: $1,240 / MSRP: $4,799
+Year: 2023 / Screen Size: 14-inch / Processor: M2 Pro with 12-core CPU and 19-core GPU / Storage: 512GB / Memory: 16GB  / Price: $690 / MSRP: $2,299
+Year: 2023 / Screen Size: 14-inch / Processor: M2 Pro with 12-core CPU and 19-core GPU / Storage: 1TB / Memory: 16GB  / Price: $760 / MSRP: $2,499
+Year: 2023 / Screen Size: 14-inch / Processor: M2 Pro with 12-core CPU and 19-core GPU / Storage: 2TB / Memory: 16GB  / Price: $890 / MSRP: $2,899
+Year: 2023 / Screen Size: 14-inch / Processor: M2 Pro with 12-core CPU and 19-core GPU / Storage: 4TB / Memory: 16GB  / Price: $1,030 / MSRP: $3,499
+Year: 2023 / Screen Size: 14-inch / Processor: M2 Pro with 12-core CPU and 19-core GPU / Storage: 8TB / Memory: 16GB  / Price: $1,180 / MSRP: $4,699
+Year: 2023 / Screen Size: 14-inch / Processor: M2 Pro with 12-core CPU and 19-core GPU / Storage: 512GB / Memory: 32GB  / Price: $810 / MSRP: $2,699
+Year: 2023 / Screen Size: 14-inch / Processor: M2 Pro with 12-core CPU and 19-core GPU / Storage: 1TB / Memory: 32GB  / Price: $870 / MSRP: $2,899
+Year: 2023 / Screen Size: 14-inch / Processor: M2 Pro with 12-core CPU and 19-core GPU / Storage: 2TB / Memory: 32GB  / Price: $1,010 / MSRP: $3,299
+Year: 2023 / Screen Size: 14-inch / Processor: M2 Pro with 12-core CPU and 19-core GPU / Storage: 4TB / Memory: 32GB  / Price: $1,170 / MSRP: $3,899
+Year: 2023 / Screen Size: 14-inch / Processor: M2 Pro with 12-core CPU and 19-core GPU / Storage: 8TB / Memory: 32GB  / Price: $1,310 / MSRP: $5,099
+Year: 2023 / Screen Size: 14-inch / Processor: M2 Max with 12-core CPU and 30-core GPU / Storage: 512GB / Memory: 16GB  / Price: $770 / MSRP: $2,899
+Year: 2023 / Screen Size: 14-inch / Processor: M2 Max with 12-core CPU and 30-core GPU / Storage: 1TB / Memory: 16GB  / Price: $830 / MSRP: $3,099
+Year: 2023 / Screen Size: 14-inch / Processor: M2 Max with 12-core CPU and 30-core GPU / Storage: 2TB / Memory: 16GB  / Price: $930 / MSRP: $3,499
+Year: 2023 / Screen Size: 14-inch / Processor: M2 Max with 12-core CPU and 30-core GPU / Storage: 4TB / Memory: 16GB  / Price: $1,020 / MSRP: $4,099
+Year: 2023 / Screen Size: 14-inch / Processor: M2 Max with 12-core CPU and 30-core GPU / Storage: 8TB / Memory: 16GB  / Price: $1,210 / MSRP: $5,299
+Year: 2023 / Screen Size: 14-inch / Processor: M2 Max with 12-core CPU and 30-core GPU / Storage: 512GB / Memory: 32GB  / Price: $960 / MSRP: $3,299
+Year: 2023 / Screen Size: 14-inch / Processor: M2 Max with 12-core CPU and 30-core GPU / Storage: 1TB / Memory: 32GB  / Price: $1,090 / MSRP: $3,499
+Year: 2023 / Screen Size: 14-inch / Processor: M2 Max with 12-core CPU and 30-core GPU / Storage: 2TB / Memory: 32GB  / Price: $1,200 / MSRP: $3,899
+Year: 2023 / Screen Size: 14-inch / Processor: M2 Max with 12-core CPU and 30-core GPU / Storage: 4TB / Memory: 32GB  / Price: $1,380 / MSRP: $4,499
+Year: 2023 / Screen Size: 14-inch / Processor: M2 Max with 12-core CPU and 30-core GPU / Storage: 8TB / Memory: 32GB  / Price: $1,590 / MSRP: $5,699
+Year: 2023 / Screen Size: 14-inch / Processor: M2 Max with 12-core CPU and 30-core GPU / Storage: 512GB / Memory: 64GB  / Price: $1,150 / MSRP: $3,699
+Year: 2023 / Screen Size: 14-inch / Processor: M2 Max with 12-core CPU and 30-core GPU / Storage: 1TB / Memory: 64GB  / Price: $1,230 / MSRP: $3,899
+Year: 2023 / Screen Size: 14-inch / Processor: M2 Max with 12-core CPU and 30-core GPU / Storage: 2TB / Memory: 64GB  / Price: $1,430 / MSRP: $4,299
+Year: 2023 / Screen Size: 14-inch / Processor: M2 Max with 12-core CPU and 30-core GPU / Storage: 4TB / Memory: 64GB  / Price: $1,610 / MSRP: $4,899
+Year: 2023 / Screen Size: 14-inch / Processor: M2 Max with 12-core CPU and 30-core GPU / Storage: 8TB / Memory: 64GB  / Price: $1,770 / MSRP: $6,099
+Year: 2023 / Screen Size: 14-inch / Processor: M2 Max with 12-core CPU and 38-core GPU / Storage: 512GB / Memory: 16GB  / Price: $770 / MSRP: $3,099
+Year: 2023 / Screen Size: 14-inch / Processor: M2 Max with 12-core CPU and 38-core GPU / Storage: 1TB / Memory: 16GB  / Price: $830 / MSRP: $3,299
+Year: 2023 / Screen Size: 14-inch / Processor: M2 Max with 12-core CPU and 38-core GPU / Storage: 2TB / Memory: 16GB  / Price: $870 / MSRP: $3,699
+Year: 2023 / Screen Size: 14-inch / Processor: M2 Max with 12-core CPU and 38-core GPU / Storage: 4TB / Memory: 16GB  / Price: $940 / MSRP: $4,299
+Year: 2023 / Screen Size: 14-inch / Processor: M2 Max with 12-core CPU and 38-core GPU / Storage: 8TB / Memory: 16GB  / Price: $1,090 / MSRP: $5,499
+Year: 2023 / Screen Size: 14-inch / Processor: M2 Max with 12-core CPU and 38-core GPU / Storage: 512GB / Memory: 32GB  / Price: $1,050 / MSRP: $3,499
+Year: 2023 / Screen Size: 14-inch / Processor: M2 Max with 12-core CPU and 38-core GPU / Storage: 1TB / Memory: 32GB  / Price: $1,170 / MSRP: $3,699
+Year: 2023 / Screen Size: 14-inch / Processor: M2 Max with 12-core CPU and 38-core GPU / Storage: 2TB / Memory: 32GB  / Price: $1,250 / MSRP: $4,099
+Year: 2023 / Screen Size: 14-inch / Processor: M2 Max with 12-core CPU and 38-core GPU / Storage: 4TB / Memory: 32GB  / Price: $1,460 / MSRP: $4,699
+Year: 2023 / Screen Size: 14-inch / Processor: M2 Max with 12-core CPU and 38-core GPU / Storage: 8TB / Memory: 32GB  / Price: $1,670 / MSRP: $5,899
+Year: 2023 / Screen Size: 14-inch / Processor: M2 Max with 12-core CPU and 38-core GPU / Storage: 512GB / Memory: 64GB  / Price: $1,350 / MSRP: $3,899
+Year: 2023 / Screen Size: 14-inch / Processor: M2 Max with 12-core CPU and 38-core GPU / Storage: 1TB / Memory: 64GB  / Price: $1,450 / MSRP: $4,099
+Year: 2023 / Screen Size: 14-inch / Processor: M2 Max with 12-core CPU and 38-core GPU / Storage: 2TB / Memory: 64GB  / Price: $1,550 / MSRP: $4,499
+Year: 2023 / Screen Size: 14-inch / Processor: M2 Max with 12-core CPU and 38-core GPU / Storage: 4TB / Memory: 64GB  / Price: $1,750 / MSRP: $5,099
+Year: 2023 / Screen Size: 14-inch / Processor: M2 Max with 12-core CPU and 38-core GPU / Storage: 8TB / Memory: 64GB  / Price: $1,930 / MSRP: $6,299
+Year: 2023 / Screen Size: 14-inch / Processor: M2 Max with 12-core CPU and 38-core GPU / Storage: 512GB / Memory: 96GB  / Price: $1480 / MSRP: $4,299
+Year: 2023 / Screen Size: 14-inch / Processor: M2 Max with 12-core CPU and 38-core GPU / Storage: 1TB / Memory: 96GB  / Price: $1,630 / MSRP: $4,499
+Year: 2023 / Screen Size: 14-inch / Processor: M2 Max with 12-core CPU and 38-core GPU / Storage: 2TB / Memory: 96GB  / Price: $1,720 / MSRP: $4,899
+Year: 2023 / Screen Size: 14-inch / Processor: M2 Max with 12-core CPU and 38-core GPU / Storage: 4TB / Memory: 96GB  / Price: $1,930 / MSRP: $5,499
+Year: 2023 / Screen Size: 14-inch / Processor: M2 Max with 12-core CPU and 38-core GPU / Storage: 8TB / Memory: 96GB  / Price: $2,120 / MSRP: $6,699
+Year: 2023 / Screen Size: 16-inch / Processor: M2 Pro with 12-core CPU and 19-core GPU / Storage: 512GB / Memory: 16GB  / Price: $740 / MSRP: $2,499
+Year: 2023 / Screen Size: 16-inch / Processor: M2 Pro with 12-core CPU and 19-core GPU / Storage: 1TB / Memory: 16GB / Price: $880 / MSRP: $2,699
+Year: 2023 / Screen Size: 16-inch / Processor: M2 Pro with 12-core CPU and 19-core GPU / Storage: 2TB / Memory: 16GB / Price: $980 / MSRP: $3,099
+Year: 2023 / Screen Size: 16-inch / Processor: M2 Pro with 12-core CPU and 19-core GPU / Storage: 4TB / Memory: 16GB  / Price: $1,160 / MSRP: $3,699
+Year: 2023 / Screen Size: 16-inch / Processor: M2 Pro with 12-core CPU and 19-core GPU / Storage: 8TB / Memory: 16GB  / Price: $1,320 / MSRP: $4,899
+Year: 2023 / Screen Size: 16-inch / Processor: M2 Pro with 12-core CPU and 19-core GPU / Storage: 512GB / Memory: 32GB  / Price: $870 / MSRP: $2,899
+Year: 2023 / Screen Size: 16-inch / Processor: M2 Pro with 12-core CPU and 19-core GPU / Storage: 1TB / Memory: 32GB  / Price: $1,030 / MSRP: $3,099
+Year: 2023 / Screen Size: 16-inch / Processor: M2 Pro with 12-core CPU and 19-core GPU / Storage: 2TB / Memory: 32GB  / Price: $1,110 / MSRP: $3,499
+Year: 2023 / Screen Size: 16-inch / Processor: M2 Pro with 12-core CPU and 19-core GPU / Storage: 4TB / Memory: 32GB  / Price: $1,260 / MSRP: $4,099
+Year: 2023 / Screen Size: 16-inch / Processor: M2 Pro with 12-core CPU and 19-core GPU / Storage: 8TB / Memory: 32GB  / Price: $1,470 / MSRP: $5,299
+Year: 2023 / Screen Size: 16-inch / Processor: M2 Max with 12-core CPU and 30-core GPU / Storage: 512GB / Memory: 16GB  / Price: $750 / MSRP: $3,099
+Year: 2023 / Screen Size: 16-inch / Processor: M2 Max with 12-core CPU and 30-core GPU / Storage: 1TB / Memory: 16GB  / Price: $800 / MSRP: $3,299
+Year: 2023 / Screen Size: 16-inch / Processor: M2 Max with 12-core CPU and 30-core GPU / Storage: 2TB / Memory: 16GB  / Price: $890 / MSRP: $3,699
+Year: 2023 / Screen Size: 16-inch / Processor: M2 Max with 12-core CPU and 30-core GPU / Storage: 4TB / Memory: 16GB  / Price: $960 / MSRP: $4,299
+Year: 2023 / Screen Size: 16-inch / Processor: M2 Max with 12-core CPU and 30-core GPU / Storage: 8TB / Memory: 16GB  / Price: $1,120 / MSRP: $5,499
+Year: 2023 / Screen Size: 16-inch / Processor: M2 Max with 12-core CPU and 30-core GPU / Storage: 512GB / Memory: 32GB  / Price: $1,080 / MSRP: $3,499
+Year: 2023 / Screen Size: 16-inch / Processor: M2 Max with 12-core CPU and 30-core GPU / Storage: 1TB / Memory: 32GB  / Price: $1,230 / MSRP: $3,699
+Year: 2023 / Screen Size: 16-inch / Processor: M2 Max with 12-core CPU and 30-core GPU / Storage: 2TB / Memory: 32GB  / Price: $1,340 / MSRP: $4,099
+Year: 2023 / Screen Size: 16-inch / Processor: M2 Max with 12-core CPU and 30-core GPU / Storage: 4TB / Memory: 32GB  / Price: $1,510 / MSRP: $4,699
+Year: 2023 / Screen Size: 16-inch / Processor: M2 Max with 12-core CPU and 30-core GPU / Storage: 8TB / Memory: 32GB  / Price: $1,690 / MSRP: $5,899
+Year: 2023 / Screen Size: 16-inch / Processor: M2 Max with 12-core CPU and 30-core GPU / Storage: 512GB / Memory: 64GB  / Price: $1,300 / MSRP: $3,899
+Year: 2023 / Screen Size: 16-inch / Processor: M2 Max with 12-core CPU and 30-core GPU / Storage: 1TB / Memory: 64GB  / Price: $1,450 / MSRP: $4,099
+Year: 2023 / Screen Size: 16-inch / Processor: M2 Max with 12-core CPU and 30-core GPU / Storage: 2TB / Memory: 64GB  / Price: $1,530 / MSRP: $4,499
+Year: 2023 / Screen Size: 16-inch / Processor: M2 Max with 12-core CPU and 30-core GPU / Storage: 4TB / Memory: 64GB  / Price: $1,700 / MSRP: $5,099
+Year: 2023 / Screen Size: 16-inch / Processor: M2 Max with 12-core CPU and 30-core GPU / Storage: 8TB / Memory: 64GB  / Price: $1,890 / MSRP: $6,299
+Year: 2023 / Screen Size: 16-inch / Processor: M2 Max with 12-core CPU and 38-core GPU / Storage: 512GB / Memory: 16GB  / Price: $860 / MSRP: $3,299
+Year: 2023 / Screen Size: 16-inch / Processor: M2 Max with 12-core CPU and 38-core GPU / Storage: 1TB / Memory: 16GB  / Price: $910 / MSRP: $3,499
+Year: 2023 / Screen Size: 16-inch / Processor: M2 Max with 12-core CPU and 38-core GPU / Storage: 2TB / Memory: 16GB  / Price: $1,000 / MSRP: $3,899
+Year: 2023 / Screen Size: 16-inch / Processor: M2 Max with 12-core CPU and 38-core GPU / Storage: 4TB / Memory: 16GB  / Price: $1,070 / MSRP: $4,499
+Year: 2023 / Screen Size: 16-inch / Processor: M2 Max with 12-core CPU and 38-core GPU / Storage: 8TB / Memory: 16GB  / Price: $1,230 / MSRP: $5,699
+Year: 2023 / Screen Size: 16-inch / Processor: M2 Max with 12-core CPU and 38-core GPU / Storage: 512GB / Memory: 32GB  / Price: $1,170 / MSRP: $3,699
+Year: 2023 / Screen Size: 16-inch / Processor: M2 Max with 12-core CPU and 38-core GPU / Storage: 1TB / Memory: 32GB  / Price: $1,330 / MSRP: $3,899
+Year: 2023 / Screen Size: 16-inch / Processor: M2 Max with 12-core CPU and 38-core GPU / Storage: 2TB / Memory: 32GB  / Price: $1,410 / MSRP: $4,299
+Year: 2023 / Screen Size: 16-inch / Processor: M2 Max with 12-core CPU and 38-core GPU / Storage: 4TB / Memory: 32GB  / Price: $1,600 / MSRP: $4,899
+Year: 2023 / Screen Size: 16-inch / Processor: M2 Max with 12-core CPU and 38-core GPU / Storage: 8TB / Memory: 32GB  / Price: $1,760 / MSRP: $6,099
+Year: 2023 / Screen Size: 16-inch / Processor: M2 Max with 12-core CPU and 38-core GPU / Storage: 512GB / Memory: 64GB  / Price: $1,430 / MSRP: $4,099
+Year: 2023 / Screen Size: 16-inch / Processor: M2 Max with 12-core CPU and 38-core GPU / Storage: 1TB / Memory: 64GB  / Price: $1,580 / MSRP: $4,299
+Year: 2023 / Screen Size: 16-inch / Processor: M2 Max with 12-core CPU and 38-core GPU / Storage: 2TB / Memory: 64GB  / Price: $1,700 / MSRP: $4,699
+Year: 2023 / Screen Size: 16-inch / Processor: M2 Max with 12-core CPU and 38-core GPU / Storage: 4TB / Memory: 64GB  / Price: $1,810 / MSRP: $5,299
+Year: 2023 / Screen Size: 16-inch / Processor: M2 Max with 12-core CPU and 38-core GPU / Storage: 8TB / Memory: 64GB  / Price: $2,040 / MSRP: $6,499
+Year: 2023 / Screen Size: 16-inch / Processor: M2 Max with 12-core CPU and 38-core GPU / Storage: 512GB / Memory: 96GB  / Price: $1,700 / MSRP: $4,499
+Year: 2023 / Screen Size: 16-inch / Processor: M2 Max with 12-core CPU and 38-core GPU / Storage: 1TB / Memory: 96GB  / Price: $1,800 / MSRP: $4,699
+Year: 2023 / Screen Size: 16-inch / Processor: M2 Max with 12-core CPU and 38-core GPU / Storage: 2TB / Memory: 96GB  / Price: $1,920 / MSRP: $5,099
+Year: 2023 / Screen Size: 16-inch / Processor: M2 Max with 12-core CPU and 38-core GPU / Storage: 4TB / Memory: 96GB  / Price: $2,130 / MSRP: $5,699
+Year: 2023 / Screen Size: 16-inch / Processor: M2 Max with 12-core CPU and 38-core GPU / Storage: 8TB / Memory: 96GB  / Price: $2,320 / MSRP: $6,899`;
+
+        // -----------------------------
+        // DEPRECIATION RATES & MULTIPLIERS
+        // -----------------------------
+        const DEPRECIATION = {
+            "M5": { "low": 0.22, "mid": 0.18, "high": 0.14 },
+            "M4": { "low": 0.30, "mid": 0.26, "high": 0.22 },
+            "M3": { "low": 0.40, "mid": 0.35, "high": 0.30 },
+            "M2": { "low": 0.50, "mid": 0.45, "high": 0.40 }
+        };
+
+        const CONDITION_MULT = {
+            "Excellent": 1.00,
+            "Good": 0.85,
+            "Fair": 0.70,
+            "Poor": 0.45
+        };
+
+        // -----------------------------
+        // INIT & PARSE DATABASE
+        // -----------------------------
+        const floorPrices = {};
+        
+        function initDB() {
+            const lines = RAW_PRICE_DB.trim().split('\n');
+            lines.forEach(line => {
+                if (!line.trim()) return;
+                try {
+                    const partsArray = line.split('/').map(p => p.trim());
+                    const parts = {};
+                    partsArray.forEach(p => {
+                        const splitIdx = p.indexOf(':');
+                        if(splitIdx > -1) {
+                            parts[p.substring(0, splitIdx).trim()] = p.substring(splitIdx + 1).trim();
+                        }
+                    });
+
+                    const screen = parts['Screen Size'] || '14-inch';
+                    const raw_cpu = parts['Processor'] || 'Unknown';
+                    
+                    // Match "M5 Pro" or "M4 Max" or "M3"
+                    const cpuMatch = raw_cpu.match(/(M\d\s*(?:Pro|Max)?)/);
+                    const base_cpu = cpuMatch ? cpuMatch[1].trim() : raw_cpu.split(' ')[0];
+                    
+                    const ssd = parts['Storage'] || 'Unknown';
+                    const ram = (parts['Memory'] || 'Unknown').replace(/\s/g, '');
+                    
+                    const priceStr = (parts['Price'] || '0').replace('$', '').replace(',', '').trim();
+                    const msrpStr = (parts['MSRP'] || '0').replace('$', '').replace(',', '').trim();
+                    
+                    const price = parseInt(priceStr);
+                    const msrp = parseInt(msrpStr);
+                    
+                    const key = `${base_cpu} ${screen} ${ram} ${ssd}`;
+                    
+                    if (!floorPrices[key] || price < floorPrices[key].price) {
+                        floorPrices[key] = { price, msrp };
+                    }
+                } catch (e) {
+                    console.error("Failed to parse line:", line, e);
+                }
+            });
+            console.log("Database initialized. Unique items:", Object.keys(floorPrices).length);
+        }
+
+        // -----------------------------
+        // CALCULATE FUNCTION
+        // -----------------------------
+        function calculate() {
+            const family = document.getElementById('family').value; // e.g. "M5"
+            const tierInput = document.getElementById('tier').value; // "", "Pro", "Max"
+            const screen = document.getElementById('screen').value;
+            const ram = document.getElementById('ram').value;
+            const storage = document.getElementById('storage').value;
+            const condition = document.getElementById('condition').value;
+
+            // Reconstruct base_cpu exact format
+            let base_cpu = family;
+            if (tierInput) base_cpu += ` ${tierInput}`;
+            
+            const lookupKey = `${base_cpu} ${screen} ${ram} ${storage}`;
+            const dbData = floorPrices[lookupKey];
+            const statusMsg = document.getElementById('statusMessage');
+
+            if (!dbData) {
+                statusMsg.textContent = `❌ Not found in DB: ${lookupKey}`;
+                statusMsg.className = "text-sm font-semibold text-red-600 mb-4 h-6";
+                document.getElementById('outOffer').textContent = "$0";
+                document.getElementById('outQuick').textContent = "$0";
+                document.getElementById('outSafe').textContent = "$0";
+                document.getElementById('outOpt').textContent = "$0";
+                document.getElementById('outMSRP').textContent = "$0";
+                document.getElementById('msrpDetails').textContent = "Orig MSRP: $0";
+                return;
+            }
+
+            statusMsg.textContent = `✅ DB Match: ${lookupKey}`;
+            statusMsg.className = "text-sm font-semibold text-green-600 mb-4 h-6";
+
+            const raw_offer_price = dbData.price;
+            const raw_msrp = dbData.msrp;
+
+            const cond_mult = CONDITION_MULT[condition] || 1.0;
+            const adjusted_offer_price = raw_offer_price * cond_mult;
+
+            // Target calculations
+            const quick_flip = Math.round(adjusted_offer_price * 1.27);
+            const safe_price = Math.round(adjusted_offer_price * 1.32);
+            const optimistic = Math.round(adjusted_offer_price * 1.38);
+
+            // MSRP Depreciation calculations
+            let tierCat = "low";
+            if (tierInput === "Max") tierCat = "high";
+            else if (tierInput === "Pro") tierCat = "mid";
+
+            const depRateObj = DEPRECIATION[family] || DEPRECIATION["M2"];
+            const depRate = depRateObj[tierCat] || 0.40;
+            const msrp_target = Math.round(raw_msrp * (1 - depRate));
+
+            // Format Currency
+            const formatMoney = (num) => '$' + num.toLocaleString();
+
+            // Update UI
+            document.getElementById('outOffer').textContent = formatMoney(adjusted_offer_price);
+            document.getElementById('outQuick').textContent = formatMoney(quick_flip);
+            document.getElementById('outSafe').textContent = formatMoney(safe_price);
+            document.getElementById('outOpt').textContent = formatMoney(optimistic);
+            
+            document.getElementById('outMSRP').textContent = formatMoney(msrp_target);
+            document.getElementById('msrpDetails').textContent = `Orig MSRP: ${formatMoney(raw_msrp)} (Tier: ${tierCat})`;
+        }
+
+        // Run once on load
+        window.onload = () => {
+            initDB();
+            calculate();
+        };
+    </script>
+</body>
+</html>
